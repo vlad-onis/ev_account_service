@@ -1,0 +1,15 @@
+
+    // version of protocol buffer used
+    syntax = "proto3";
+    
+    package account_service_rpc;
+
+    message GrpcRequest {
+        string request_text = 1;
+    }
+
+    message GrpcResponse {
+        string response_text = 1;
+    }
+
+    message EmptyRequest {}

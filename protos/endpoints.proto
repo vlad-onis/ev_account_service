@@ -1,0 +1,12 @@
+
+    // version of protocol buffer used
+    syntax = "proto3";
+
+    // package name for the buffer will be used later
+    package account_service_rpc;
+    import public "common.proto";
+
+
+    service AccountService {
+        rpc healthCheck (EmptyRequest) returns (GrpcResponse);
+    }
