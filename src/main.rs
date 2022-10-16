@@ -1,19 +1,13 @@
-mod rpc_endpoints;
+use ev_account_service::startup;
 
-use rpc_endpoints::health_check::account_service::account_service_server::AccountServiceServer;
-use rpc_endpoints::EndpointServer;
-
-use tonic::transport::Server;
+use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse()?;
-    let accounts_endpoint_server = EndpointServer::default();
+    let router = startup::run();
 
-    Server::builder()
-        .add_service(AccountServiceServer::new(accounts_endpoint_server))
-        .serve(addr)
-        .await?;
+    let addr: SocketAddr = "[::1]:50051".parse()?;
+    router.serve(addr).await?;
 
     Ok(())
 }
