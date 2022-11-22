@@ -5,8 +5,10 @@
     // package name for the buffer will be used later
     package account_service_rpc;
     import public "common.proto";
+    import public "signup.proto";
 
 
     service AccountService {
         rpc healthCheck (EmptyRequest) returns (GrpcResponse);
+        rpc signUp (SignUpRequest) returns (SignUpResponse);
     }

@@ -1,8 +1,10 @@
 use ev_account_service::configuration::get_configuration;
 use ev_account_service::rpc_endpoints::health_check::account_service::account_service_client::AccountServiceClient;
-use ev_account_service::rpc_endpoints::health_check::account_service::EmptyRequest;
+use ev_account_service::rpc_endpoints::health_check::account_service::SignUpRequest;
 use ev_account_service::startup;
+use sqlx::Connection;
 
+use sqlx::PgConnection;
 use std::net::AddrParseError;
 use std::net::SocketAddr;
 use tonic;
@@ -25,7 +27,7 @@ async fn spawn_endpoint_server() -> Result<(), AddrParseError> {
 }
 
 #[tokio::test]
-async fn health_check_works() {
+async fn signup_returns_registered_user() {
     let app_started = spawn_endpoint_server().await;
     sleep(Duration::from_millis(50)).await; //Waiting for the Endpoint server to actually stary
     assert!(app_started.is_ok());
@@ -38,15 +40,31 @@ async fn health_check_works() {
     let client = AccountServiceClient::connect(addr).await;
     assert!(client.is_ok());
 
+    let connection_string = config.database.connection_string();
+    let mut connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to the db");
+
     let mut client = client.unwrap();
-    let request = tonic::Request::new(EmptyRequest {});
-    let response = client.health_check(request).await;
+    let request = tonic::Request::new(SignUpRequest {
+        username: String::from("vladonis"),
+        password: String::from("test1234"),
+        email: String::from("vladonis@gmail.com"),
+    });
 
+    let response = client.sign_up(request).await;
     assert!(response.is_ok());
-
     let response = response.unwrap();
-    assert_eq!(
-        response.get_ref().response_text,
-        "Health check status: healthy"
-    );
+    assert_eq!(response.get_ref().signup_response, "vladonis");
+
+    let saved = sqlx::query!("SELECT username FROM accounts",)
+        .fetch_one(&mut connection)
+        .await
+        .expect("Could not fetch signed up user");
+    assert_eq!(saved.username, response.get_ref().signup_response);
+
+    // assert_eq!(
+    //     response.get_ref().signup_response,
+    //     "Signed up successfully!"
+    // );
 }

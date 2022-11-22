@@ -6,12 +6,11 @@ use std::net::SocketAddr;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let configuration = get_configuration().expect("Failed to read configuration");
-    let router = startup::run();
 
+    let router = startup::run().await;
     let addr = format!("127.0.0.1:{}", configuration.application_port);
-
     let addr: SocketAddr = addr.parse()?;
-    router.serve(addr).await?;
 
+    router.serve(addr).await?;
     Ok(())
 }

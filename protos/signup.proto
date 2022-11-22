@@ -1,0 +1,14 @@
+// version of protocol buffer used
+    syntax = "proto3";
+    
+    package account_service_rpc;
+
+    message SignUpRequest {
+        string username = 1;
+        string password = 2;
+        string email = 3;
+    }
+
+    message SignUpResponse {
+        string signup_response = 1;
+    }
