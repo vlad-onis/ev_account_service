@@ -9,15 +9,16 @@ pub mod account_service {
     tonic::include_proto!("account_service_rpc"); // String specified here matches the proto package name
 }
 
-pub struct EndpointServer {
+pub struct AccountsEndpointServer {
+    /// storage_manager handles db operations on user accounts.
     storage_manager: StorageManager,
 }
 
-impl EndpointServer {
-    pub async fn new() -> EndpointServer {
+impl AccountsEndpointServer {
+    pub async fn new() -> AccountsEndpointServer {
         let storage_mgr = StorageManager::new().await;
 
-        EndpointServer {
+        AccountsEndpointServer {
             storage_manager: storage_mgr,
         }
     }

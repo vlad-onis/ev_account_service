@@ -7,6 +7,9 @@ pub mod account_service {
     tonic::include_proto!("account_service_rpc"); // String specified here matches the proto package name
 }
 
+/// Grpc request will return the health check response
+
+// TODO: This should not be public.
 pub async fn health_check(
     _request: Request<EmptyRequest>,
 ) -> Result<Response<GrpcResponse>, Status> {

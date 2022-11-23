@@ -16,6 +16,7 @@ pub struct DatabaseSettings {
 }
 
 impl DatabaseSettings {
+    /// Returns the db connection strig previously read from the config file.
     pub fn connection_string(&self) -> String {
         format!(
             "postgres://{}:{}@{}:{}/{}",
@@ -24,6 +25,16 @@ impl DatabaseSettings {
     }
 }
 
+/// Creates a Settings object as a Result if it managed to deserialize
+/// it from a config file.
+///
+/// This function uses the config crate to create a default config object
+/// and append a config file to it from where the deserialization will be
+/// attempted.
+///
+/// return: Result<Settings, config::ConfigError>
+///
+/// usage: configuration::get_configuration.unwrap()
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
 
