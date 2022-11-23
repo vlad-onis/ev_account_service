@@ -46,6 +46,7 @@ async fn signup_returns_registered_user() {
         .expect("Failed to connect to the db");
 
     let mut client = client.unwrap();
+
     let request = tonic::Request::new(SignUpRequest {
         username: String::from("vladonis"),
         password: String::from("test1234"),
@@ -62,9 +63,4 @@ async fn signup_returns_registered_user() {
         .await
         .expect("Could not fetch signed up user");
     assert_eq!(saved.username, response.get_ref().signup_response);
-
-    // assert_eq!(
-    //     response.get_ref().signup_response,
-    //     "Signed up successfully!"
-    // );
 }

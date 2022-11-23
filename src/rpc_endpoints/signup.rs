@@ -8,6 +8,14 @@ pub mod account_service {
     tonic::include_proto!("account_service_rpc"); // String specified here matches the proto package name
 }
 
+/// Signup grpc request.
+///
+/// params:
+/// * SignupRequest, defined in the protofile represents the mandatory request body
+///     * username: String - mandatory
+///     * password: String - mandatory
+///     * email: String - mandatory
+// TODO: This should not be public.
 pub async fn sign_up(
     request: Request<SignUpRequest>,
     storage_manager: &StorageManager,
