@@ -1,5 +1,5 @@
-use crate::rpc_endpoints::account_service::account_service_server::AccountServiceServer;
-use crate::rpc_endpoints::AccountsEndpointServer;
+use crate::rpc_endpoints::account_service_endpoints::account_service::account_service_server::AccountServiceServer;
+use crate::rpc_endpoints::account_service_endpoints::AccountsEndpointServer;
 
 use tonic::transport::server::Router;
 use tonic::transport::Server;

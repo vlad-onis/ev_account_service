@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Account {
     pub username: String,
     pub email: String,
@@ -18,11 +18,14 @@ impl Account {
 }
 
 impl Display for Account {
+    // TODO: Remove password or let it only for debug version
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // TODO: Find a nicer way to format, not with 4 whitespaces in between words.
         let display_account = format!(
-            "Account:\n    Username: {}\n    email: {}\n",
-            self.username, self.email
+            "Username: {}\n    \
+             Email: {}\n    \
+             Password: {}\n",
+            self.username, self.email, self.password
         );
         write!(f, "{}", display_account)
     }

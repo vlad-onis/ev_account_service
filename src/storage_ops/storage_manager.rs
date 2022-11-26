@@ -24,13 +24,20 @@ impl StorageManager {
     }
 
     /// Returns a list of all accounts in the db
-    pub async fn get_all_accounts(&self) {
-        let saved = sqlx::query!("SELECT * FROM accounts")
+    pub async fn get_all_accounts(&self) -> Option<Vec<Account>> {
+        let saved = sqlx::query_as!(Account, "SELECT username, email, password FROM accounts")
             .fetch_all(&self.connection_pool)
             .await
-            .expect("Failed to get accounts");
+            .ok();
 
-        println!("Accounts:\n{:?}", saved);
+        // TODO: Replace with tracing logs
+        if let Some(accounts) = saved.clone() {
+            for (index, account) in accounts.into_iter().enumerate() {
+                println!("Account {index}:\n    {account}");
+            }
+        }
+
+        saved
     }
 
     pub async fn get_account_by_username(&self, username: &str) -> Option<Account> {
@@ -43,10 +50,11 @@ impl StorageManager {
         .await
         .ok();
 
-        if let Some(account) = saved {
-            println!("{}", account);
+        // TODO: Replace with tracing/logging
+        if let Some(account) = saved.clone() {
+            println!("Account:\n    {account}");
         }
 
-        None
+        saved
     }
 }

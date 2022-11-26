@@ -1,10 +1,31 @@
-use super::account_service::account_service_server::AccountService;
-use super::account_service::{EmptyRequest, GrpcResponse, SignUpRequest, SignUpResponse};
 use super::health_check::health_check;
 use super::signup::sign_up;
-use super::AccountsEndpointServer;
+use crate::storage_ops::storage_manager::StorageManager;
+
+use account_service::account_service_server::AccountService;
+use account_service::{EmptyRequest, GrpcResponse, SignUpRequest, SignUpResponse};
 
 use tonic::{Request, Response, Status};
+
+pub mod account_service {
+    #![allow(clippy::derive_partial_eq_without_eq)]
+    tonic::include_proto!("account_service_rpc"); // String specified here matches the proto package name
+}
+
+pub struct AccountsEndpointServer {
+    /// storage_manager handles db operations on user accounts.
+    storage_manager: StorageManager,
+}
+
+impl AccountsEndpointServer {
+    pub async fn new() -> AccountsEndpointServer {
+        let storage_mgr = StorageManager::new().await;
+
+        AccountsEndpointServer {
+            storage_manager: storage_mgr,
+        }
+    }
+}
 
 #[tonic::async_trait]
 impl AccountService for AccountsEndpointServer {
