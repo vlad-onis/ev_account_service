@@ -24,6 +24,7 @@ pub async fn sign_up(
     println!("Password = {}", request.get_ref().password);
 
     storage_manager.get_all_accounts().await;
+    let _ = storage_manager.get_account_by_username("vladonis").await;
 
     let response = SignUpResponse {
         signup_response: request.get_ref().username.clone(),

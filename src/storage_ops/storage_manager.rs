@@ -1,4 +1,5 @@
-use super::super::configuration::get_configuration;
+use crate::configuration::get_configuration;
+use crate::model::account::Account;
 
 use sqlx::{PgPool, Pool, Postgres};
 
@@ -30,5 +31,22 @@ impl StorageManager {
             .expect("Failed to get accounts");
 
         println!("Accounts:\n{:?}", saved);
+    }
+
+    pub async fn get_account_by_username(&self, username: &str) -> Option<Account> {
+        let saved = sqlx::query_as!(
+            Account,
+            "SELECT username, email, password FROM accounts WHERE username = $1",
+            username
+        )
+        .fetch_one(&self.connection_pool) // -> Vec<{ country: String, count: i64 }>
+        .await
+        .ok();
+
+        if let Some(account) = saved {
+            println!("{}", account);
+        }
+
+        None
     }
 }
