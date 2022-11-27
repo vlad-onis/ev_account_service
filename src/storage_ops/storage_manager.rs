@@ -2,6 +2,7 @@ use crate::configuration::get_configuration;
 use crate::model::account::Account;
 
 use sqlx::{PgPool, Pool, Postgres};
+use uuid::Uuid;
 
 /// Handles db operations on accounts
 pub struct StorageManager {
@@ -56,5 +57,24 @@ impl StorageManager {
         }
 
         saved
+    }
+
+    pub async fn insert_account(&self, account: Account) -> bool {
+        let id = Uuid::new_v4();
+        let res = sqlx::query!(
+            "INSERT INTO accounts (id, username, email, password) VALUES ($1, $2, $3, $4)",
+            id,
+            account.username,
+            account.email,
+            account.password
+        )
+        .execute(&self.connection_pool)
+        .await;
+
+        if let Err(ref error) = res {
+            println!("{}", error);
+        }
+
+        res.is_ok()
     }
 }
