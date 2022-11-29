@@ -26,7 +26,7 @@ impl StorageManager {
 
     /// Returns a list of all accounts in the db
     pub async fn get_all_accounts(&self) -> Option<Vec<Account>> {
-        let saved = sqlx::query_as!(Account, "SELECT username, email, password FROM accounts")
+        let saved = sqlx::query_as!(Account, "SELECT * FROM accounts")
             .fetch_all(&self.connection_pool)
             .await
             .ok();
@@ -44,7 +44,7 @@ impl StorageManager {
     pub async fn get_account_by_username(&self, username: &str) -> Option<Account> {
         let saved = sqlx::query_as!(
             Account,
-            "SELECT username, email, password FROM accounts WHERE username = $1",
+            "SELECT * FROM accounts WHERE username = $1",
             username
         )
         .fetch_one(&self.connection_pool) // -> Vec<{ country: String, count: i64 }>

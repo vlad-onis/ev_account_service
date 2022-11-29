@@ -1,7 +1,8 @@
 use std::fmt::{Debug, Display};
-
+use uuid::Uuid;
 #[derive(Debug, Clone)]
 pub struct Account {
+    pub id: Uuid,
     pub username: String,
     pub email: String,
     pub password: String,
@@ -10,6 +11,7 @@ pub struct Account {
 impl Account {
     pub fn new(username: String, email: String, password: String) -> Account {
         Account {
+            id: Uuid::new_v4(),
             username,
             email,
             password,

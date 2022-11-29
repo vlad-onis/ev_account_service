@@ -27,6 +27,10 @@ pub async fn sign_up(
         request.get_ref().password.clone(),
     );
 
+    if account.email.is_empty() {
+        println!("Signup should fail due to empty email");
+    }
+
     let inserted = storage_manager.insert_account(account).await;
 
     let response = match inserted {
