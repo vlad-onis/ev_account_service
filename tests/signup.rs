@@ -53,14 +53,15 @@ async fn signup_returns_registered_user() {
         email: String::from("vladonis@gmail.com"),
     });
 
+    // TODO: Needs to typed not stringy typed
     let response = client.sign_up(request).await;
     assert!(response.is_ok());
     let response = response.unwrap();
-    assert_eq!(response.get_ref().signup_response, "vladonis");
+    let expected = format!("User: vladonis signed up successfully!");
+    assert_eq!(response.get_ref().signup_response, expected);
 
-    let saved = sqlx::query!("SELECT username FROM accounts",)
-        .fetch_one(&mut connection)
+    let _ = sqlx::query!("DELETE FROM accounts where username='vladonis'",)
+        .execute(&mut connection)
         .await
         .expect("Could not fetch signed up user");
-    assert_eq!(saved.username, response.get_ref().signup_response);
 }
