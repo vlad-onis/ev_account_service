@@ -77,4 +77,18 @@ impl StorageManager {
 
         res.is_ok()
     }
+
+    pub async fn delete_account_by_username(&self, username: &str) -> bool {
+        let res = sqlx::query!("DELETE FROM accounts WHERE username=$1", username,)
+            .execute(&self.connection_pool)
+            .await;
+
+        println!("DELETED: {:?}", res);
+
+        if let Err(ref error) = res {
+            println!("{}", error);
+        }
+
+        res.is_ok()
+    }
 }

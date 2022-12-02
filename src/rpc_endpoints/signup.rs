@@ -28,7 +28,8 @@ pub async fn sign_up(
     );
 
     if account.email.is_empty() {
-        println!("Signup should fail due to empty email");
+        println!("Signup fail due to empty email");
+        return Err(Status::aborted("Empty email"));
     }
 
     let inserted = storage_manager.insert_account(account).await;
