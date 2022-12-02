@@ -1,7 +1,7 @@
 use crate::configuration::get_configuration;
 use crate::model::account::Account;
 
-use sqlx::{PgPool, Pool, Postgres};
+use sqlx::{Error, PgPool, Pool, Postgres};
 use uuid::Uuid;
 
 /// Handles db operations on accounts
@@ -73,6 +73,7 @@ impl StorageManager {
 
         if let Err(ref error) = res {
             println!("{}", error);
+            // TODO: SHould I return the error here?
         }
 
         res.is_ok()
@@ -87,8 +88,35 @@ impl StorageManager {
 
         if let Err(ref error) = res {
             println!("{}", error);
+            // TODO: Should I return error here?
+            // return Err(error);
         }
 
         res.is_ok()
+    }
+
+    pub async fn update_account_by_username(
+        &self,
+        old_account: Account,
+        new_account: Account,
+    ) -> Result<Account, Error> {
+        let res = sqlx::query!(
+            "UPDATE accounts SET id=$1, username=$2, email=$3, password=$4",
+            new_account.id,
+            new_account.username,
+            new_account.email,
+            new_account.password
+        )
+        .execute(&self.connection_pool)
+        .await;
+
+        println!("UPDATED: {:?}", res);
+
+        if let Err(error) = res {
+            println!("{}", error);
+            return Err(error);
+        }
+
+        Ok(old_account)
     }
 }

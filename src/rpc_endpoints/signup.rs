@@ -32,7 +32,7 @@ pub async fn sign_up(
         return Err(Status::aborted("Empty email"));
     }
 
-    let inserted = storage_manager.insert_account(account).await;
+    let inserted = storage_manager.insert_account(account.clone()).await;
 
     let response = match inserted {
         true => SignUpResponse {
@@ -48,6 +48,17 @@ pub async fn sign_up(
             ),
         },
     };
+
+    let new_acc = Account {
+        id: account.clone().id,
+        username: String::from("kekonis"),
+        email: String::from("kek@mailus.com"),
+        password: account.clone().password,
+    };
+
+    let _ = storage_manager
+        .update_account_by_username(account, new_acc)
+        .await;
 
     Ok(Response::new(response))
 }
