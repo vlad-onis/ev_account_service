@@ -18,12 +18,18 @@ pub struct AccountsEndpointServer {
 }
 
 impl AccountsEndpointServer {
-    pub async fn new() -> AccountsEndpointServer {
-        let storage_mgr = StorageManager::new().await;
+    pub fn new() -> AccountsEndpointServer {
+        let storage_mgr = StorageManager::new();
 
         AccountsEndpointServer {
             storage_manager: storage_mgr,
         }
+    }
+}
+
+impl Default for AccountsEndpointServer {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

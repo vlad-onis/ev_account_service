@@ -35,30 +35,13 @@ pub async fn sign_up(
     let inserted = storage_manager.insert_account(account.clone()).await;
 
     let response = match inserted {
-        true => SignUpResponse {
-            signup_response: format!(
-                "User: {} signed up successfully!",
-                request.get_ref().username.clone()
-            ),
+        Ok(account) => SignUpResponse {
+            signup_response: format!("User: {} signed up successfully!", account.username),
         },
-        false => SignUpResponse {
-            signup_response: format!(
-                "Failed to sign up user: {} ",
-                request.get_ref().username.clone()
-            ),
+        Err(er) => SignUpResponse {
+            signup_response: format!("Failed to sign up user: {} ", er),
         },
     };
-
-    let new_acc = Account {
-        id: account.clone().id,
-        username: String::from("kekonis"),
-        email: String::from("kek@mailus.com"),
-        password: account.clone().password,
-    };
-
-    let _ = storage_manager
-        .update_account_by_username(account, new_acc)
-        .await;
 
     Ok(Response::new(response))
 }

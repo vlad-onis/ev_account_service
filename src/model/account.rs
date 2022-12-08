@@ -1,5 +1,8 @@
+use std::error::Error;
 use std::fmt::{Debug, Display};
+
 use uuid::Uuid;
+
 #[derive(Debug, Clone)]
 pub struct Account {
     pub id: Uuid,
@@ -16,6 +19,22 @@ impl Account {
             email,
             password,
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn update_username(&mut self, username: String) -> Result<Account, Box<dyn Error>> {
+        if username.is_empty() {
+            return Err("Username cannot be empty".into());
+        }
+
+        let account = Account {
+            id: self.id,
+            username,
+            email: self.email.clone(),
+            password: self.password.clone(),
+        };
+
+        Ok(account)
     }
 }
 
