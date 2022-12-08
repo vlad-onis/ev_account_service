@@ -10,7 +10,7 @@ use std::net::SocketAddr;
 pub async fn spawn_endpoint_server() -> Result<(), AddrParseError> {
     let config = get_configuration().expect("Failed to read configuration");
 
-    let sv = startup::run().await;
+    let sv = startup::run();
 
     let addr = format!("127.0.0.1:{}", config.application_port);
     let addr: SocketAddr = addr.parse()?;

@@ -1,5 +1,6 @@
 use super::super::storage_ops::storage_manager::StorageManager;
-use super::account_service::{SignUpRequest, SignUpResponse};
+use super::account_service_endpoints::account_service::{SignUpRequest, SignUpResponse};
+use crate::model::account::Account;
 
 use tonic::{Request, Response, Status};
 
@@ -20,13 +21,27 @@ pub async fn sign_up(
     request: Request<SignUpRequest>,
     storage_manager: &StorageManager,
 ) -> Result<Response<SignUpResponse>, Status> {
-    println!("Username = {}", request.get_ref().username);
-    println!("Password = {}", request.get_ref().password);
+    let account = Account::new(
+        request.get_ref().username.clone(),
+        request.get_ref().email.clone(),
+        request.get_ref().password.clone(),
+    );
 
-    storage_manager.get_all_accounts().await;
+    if account.email.is_empty() {
+        println!("Signup fail due to empty email");
+        return Err(Status::aborted("Empty email"));
+    }
 
-    let response = SignUpResponse {
-        signup_response: request.get_ref().username.clone(),
+    let inserted = storage_manager.insert_account(account.clone()).await;
+
+    let response = match inserted {
+        Ok(account) => SignUpResponse {
+            signup_response: format!("User: {} signed up successfully!", account.username),
+        },
+        Err(er) => SignUpResponse {
+            signup_response: format!("Failed to sign up user: {} ", er),
+        },
     };
+
     Ok(Response::new(response))
 }

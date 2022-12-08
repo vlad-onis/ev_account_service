@@ -14,7 +14,7 @@ use tokio::time::{sleep, Duration};
 async fn spawn_endpoint_server() -> Result<(), AddrParseError> {
     let config = get_configuration().expect("Failed to read configuration");
 
-    let sv = startup::run().await;
+    let sv = startup::run();
 
     let addr = format!("127.0.0.1:{}", config.application_port);
     let addr: SocketAddr = addr.parse()?;
@@ -53,14 +53,15 @@ async fn signup_returns_registered_user() {
         email: String::from("vladonis@gmail.com"),
     });
 
+    // TODO: Needs to typed not stringy typed
     let response = client.sign_up(request).await;
     assert!(response.is_ok());
     let response = response.unwrap();
-    assert_eq!(response.get_ref().signup_response, "vladonis");
+    let expected = format!("User: vladonis signed up successfully!");
+    assert_eq!(response.get_ref().signup_response, expected);
 
-    let saved = sqlx::query!("SELECT username FROM accounts",)
-        .fetch_one(&mut connection)
+    let _ = sqlx::query!("DELETE FROM accounts where username='vladonis'",)
+        .execute(&mut connection)
         .await
         .expect("Could not fetch signed up user");
-    assert_eq!(saved.username, response.get_ref().signup_response);
 }

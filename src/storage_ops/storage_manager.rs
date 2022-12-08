@@ -1,10 +1,13 @@
-use super::super::configuration::get_configuration;
+use crate::configuration::{get_configuration, DatabaseSettings};
+use crate::model::account::Account;
 
-use sqlx::{PgPool, Pool, Postgres};
+use sqlx::{Error, PgPool};
+use uuid::Uuid;
 
 /// Handles db operations on accounts
 pub struct StorageManager {
-    connection_pool: Pool<Postgres>,
+    // connection_pool: Pool<Postgres>,
+    pub db_settings: DatabaseSettings,
 }
 
 impl StorageManager {
@@ -12,23 +15,93 @@ impl StorageManager {
     /// Panics if it could not connect to the db.
 
     // TODO: Error handling instead of panic.
-    pub async fn new() -> StorageManager {
-        let db_config = get_configuration().expect("Could not load config").database;
-        let con_pool = PgPool::connect(&db_config.connection_string())
-            .await
-            .expect("Could not connect to the database");
-        StorageManager {
-            connection_pool: con_pool,
-        }
+    pub fn new() -> StorageManager {
+        let db_settings = get_configuration().expect("Could not load config").database;
+
+        StorageManager { db_settings }
+    }
+
+    pub async fn connection(&self) -> Result<PgPool, Error> {
+        PgPool::connect(&self.db_settings.connection_string()).await
     }
 
     /// Returns a list of all accounts in the db
-    pub async fn get_all_accounts(&self) {
-        let saved = sqlx::query!("SELECT * FROM accounts")
-            .fetch_all(&self.connection_pool)
-            .await
-            .expect("Failed to get accounts");
+    pub async fn get_all_accounts(&self) -> Result<Vec<Account>, Error> {
+        let connection = self.connection().await?;
 
-        println!("Accounts:\n{:?}", saved);
+        let saved = sqlx::query_as!(Account, "SELECT * FROM accounts")
+            .fetch_all(&connection)
+            .await?;
+
+        // TODO: Replace with tracing logs
+        for (index, account) in saved.iter().enumerate() {
+            println!("Account {index}:\n    {account}");
+        }
+        Ok(saved)
+    }
+
+    pub async fn get_account_by_username(&self, username: &str) -> Result<Account, Error> {
+        let connection = self.connection().await?;
+        let saved = sqlx::query_as!(
+            Account,
+            "SELECT * FROM accounts WHERE username = $1",
+            username
+        )
+        .fetch_one(&connection) // -> Vec<{ country: String, count: i64 }>
+        .await?;
+
+        // TODO: Replace with tracing/logging
+        println!("Account:\n    {saved}");
+        Ok(saved)
+    }
+
+    pub async fn insert_account(&self, account: Account) -> Result<Account, Error> {
+        let connection = self.connection().await?;
+        let id = Uuid::new_v4();
+        let _ = sqlx::query!(
+            "INSERT INTO accounts (id, username, email, password) VALUES ($1, $2, $3, $4)",
+            id,
+            account.username,
+            account.email,
+            account.password
+        )
+        .execute(&connection)
+        .await?;
+
+        Ok(account)
+    }
+
+    pub async fn delete_account(&self, account: Account) -> Result<Account, Error> {
+        let connection = self.connection().await?;
+        let _ = sqlx::query!("DELETE FROM accounts WHERE username=$1", account.username,)
+            .execute(&connection)
+            .await?;
+
+        Ok(account)
+    }
+
+    pub async fn update_account_by_username(
+        &self,
+        old_account: Account,
+        new_account: Account,
+    ) -> Result<Account, Error> {
+        let connection = self.connection().await?;
+        let _ = sqlx::query!(
+            "UPDATE accounts SET id=$1, username=$2, email=$3, password=$4",
+            old_account.id,
+            new_account.username,
+            new_account.email,
+            new_account.password
+        )
+        .execute(&connection)
+        .await?;
+
+        Ok(new_account)
+    }
+}
+
+impl Default for StorageManager {
+    fn default() -> Self {
+        Self::new()
     }
 }

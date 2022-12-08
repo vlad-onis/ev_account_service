@@ -7,7 +7,7 @@ use std::net::SocketAddr;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let configuration = get_configuration().expect("Failed to read configuration");
 
-    let router = startup::run().await;
+    let router = startup::run();
     let addr = format!("127.0.0.1:{}", configuration.application_port);
     let addr: SocketAddr = addr.parse()?;
 

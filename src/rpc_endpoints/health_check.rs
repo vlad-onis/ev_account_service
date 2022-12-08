@@ -1,6 +1,6 @@
 use tonic::{Request, Response, Status};
 
-use super::account_service::{EmptyRequest, GrpcResponse};
+use super::account_service_endpoints::account_service::{EmptyRequest, GrpcResponse};
 
 pub mod account_service {
     #![allow(clippy::derive_partial_eq_without_eq)]
