@@ -2,11 +2,19 @@ use super::super::storage_ops::storage_manager::StorageManager;
 use super::account_service_endpoints::account_service::{SignUpRequest, SignUpResponse};
 use crate::model::account::Account;
 
-use tonic::{Request, Response, Status};
+use anyhow::Result;
+use thiserror::Error;
+use tonic::{Request, Response};
 
 pub mod account_service {
     #![allow(clippy::derive_partial_eq_without_eq)]
     tonic::include_proto!("account_service_rpc"); // String specified here matches the proto package name
+}
+
+#[derive(Error, Debug)]
+pub enum SignupError {
+    #[error("Email cannot be empty")]
+    EmptyEmail,
 }
 
 /// Signup grpc request.
@@ -20,7 +28,7 @@ pub mod account_service {
 pub async fn sign_up(
     request: Request<SignUpRequest>,
     storage_manager: &StorageManager,
-) -> Result<Response<SignUpResponse>, Status> {
+) -> Result<Response<SignUpResponse>> {
     let account = Account::new(
         request.get_ref().username.clone(),
         request.get_ref().email.clone(),
@@ -29,7 +37,7 @@ pub async fn sign_up(
 
     if account.email.is_empty() {
         println!("Signup fail due to empty email");
-        return Err(Status::aborted("Empty email"));
+        return Err(SignupError::EmptyEmail.into());
     }
 
     let inserted = storage_manager.insert_account(account.clone()).await;
