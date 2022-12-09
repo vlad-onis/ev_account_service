@@ -18,6 +18,8 @@ serde = {version = "1", features = ["derive"] }
 config = "0.11"
 uuid = { version = "0.8.1", features = ["v4"] }
 chrono = { version = "0.4.15", default-features = false }
+anyhow = "1.0.66"
+thiserror = "1.0.37"
 
 # Using table-like toml syntax to avoid a super-long line!
 [dependencies.sqlx]

@@ -1,6 +1,7 @@
 use crate::configuration::{get_configuration, DatabaseSettings};
 use crate::model::account::Account;
 
+use anyhow::Result;
 use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
@@ -26,7 +27,7 @@ impl StorageManager {
     }
 
     /// Returns a list of all accounts in the db
-    pub async fn get_all_accounts(&self) -> Result<Vec<Account>, Error> {
+    pub async fn get_all_accounts(&self) -> Result<Vec<Account>> {
         let connection = self.connection().await?;
 
         let saved = sqlx::query_as!(Account, "SELECT * FROM accounts")
@@ -40,7 +41,7 @@ impl StorageManager {
         Ok(saved)
     }
 
-    pub async fn get_account_by_username(&self, username: &str) -> Result<Account, Error> {
+    pub async fn get_account_by_username(&self, username: &str) -> Result<Account> {
         let connection = self.connection().await?;
         let saved = sqlx::query_as!(
             Account,
@@ -55,7 +56,7 @@ impl StorageManager {
         Ok(saved)
     }
 
-    pub async fn insert_account(&self, account: Account) -> Result<Account, Error> {
+    pub async fn insert_account(&self, account: Account) -> Result<Account> {
         let connection = self.connection().await?;
         let id = Uuid::new_v4();
         let _ = sqlx::query!(
@@ -71,7 +72,7 @@ impl StorageManager {
         Ok(account)
     }
 
-    pub async fn delete_account(&self, account: Account) -> Result<Account, Error> {
+    pub async fn delete_account(&self, account: Account) -> Result<Account> {
         let connection = self.connection().await?;
         let _ = sqlx::query!("DELETE FROM accounts WHERE username=$1", account.username,)
             .execute(&connection)
@@ -84,7 +85,7 @@ impl StorageManager {
         &self,
         old_account: Account,
         new_account: Account,
-    ) -> Result<Account, Error> {
+    ) -> Result<Account> {
         let connection = self.connection().await?;
         let _ = sqlx::query!(
             "UPDATE accounts SET id=$1, username=$2, email=$3, password=$4",

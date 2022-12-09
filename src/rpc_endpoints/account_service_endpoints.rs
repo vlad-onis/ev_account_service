@@ -48,6 +48,11 @@ impl AccountService for AccountsEndpointServer {
         &self,
         request: Request<SignUpRequest>,
     ) -> Result<Response<SignUpResponse>, Status> {
-        sign_up(request, &self.storage_manager).await
+        let res = sign_up(request, &self.storage_manager).await.map_err(|e| {
+            let error = format!("Signup failed: {}", e);
+            Status::aborted(error)
+        })?;
+
+        Ok(res)
     }
 }
