@@ -1,7 +1,19 @@
-use std::error::Error;
 use std::fmt::{Debug, Display};
 
+use thiserror::Error;
 use uuid::Uuid;
+
+const USERNAME_MIN_LEN: usize = 4;
+const USERNAME_MAX_LEN: usize = 20;
+
+#[derive(Error, Debug)]
+pub enum AccountValidationError {
+    #[error("Username length should be between 4 and 20 characters")]
+    InvalidUsernameLength,
+
+    #[error("Email field cannot be empty")]
+    EmptyEmail,
+}
 
 #[derive(Debug, Clone)]
 pub struct Account {
@@ -12,29 +24,48 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(username: String, email: String, password: String) -> Account {
-        Account {
+    pub fn new(
+        username: String,
+        email: String,
+        password: String,
+    ) -> Result<Account, AccountValidationError> {
+        let account = Account {
             id: Uuid::new_v4(),
             username,
             email,
             password,
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn update_username(&mut self, username: String) -> Result<Account, Box<dyn Error>> {
-        if username.is_empty() {
-            return Err("Username cannot be empty".into());
-        }
-
-        let account = Account {
-            id: self.id,
-            username,
-            email: self.email.clone(),
-            password: self.password.clone(),
         };
 
+        account.is_valid()?;
         Ok(account)
+    }
+
+    // #[allow(dead_code)]
+    // pub fn update_username(&mut self, username: String) -> Result<Account, Box<dyn Error>> {
+    //     if username.is_empty() {
+    //         return Err("Username cannot be empty".into());
+    //     }
+
+    //     let account = Account {
+    //         id: self.id,
+    //         username,
+    //         email: self.email.clone(),
+    //         password: self.password.clone(),
+    //     };
+
+    //     Ok(account)
+    // }
+
+    fn is_valid(&self) -> Result<(), AccountValidationError> {
+        if (self.username.len() < USERNAME_MIN_LEN) || (self.username.len() > USERNAME_MAX_LEN) {
+            return Err(AccountValidationError::InvalidUsernameLength);
+        }
+
+        if self.email.is_empty() {
+            return Err(AccountValidationError::EmptyEmail);
+        }
+
+        Ok(())
     }
 }
 
