@@ -82,21 +82,3 @@ impl Display for Account {
         write!(f, "{}", display_account)
     }
 }
-
-#[cfg(test)]
-mod tests {
-
-    use super::Account;
-
-    #[test]
-    fn random_tests() {
-        let account = Account::new(
-            String::from("vladonis"),
-            String::from("vladonis@gmail.com"),
-            String::from("test1234"),
-        );
-
-        println!("{}", account);
-        assert!(true);
-    }
-}
