@@ -29,9 +29,11 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SQLX_VERSION: 0.5.5
+      SQLX_VERSION: 0.5.7
       SQLX_FEATURES: postgres
     steps:
+      - name: Install dependencies
+        run: sudo apt-get update -y && sudo apt-get install pkg-config libssl-dev clang -y && export X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_DIR=/usr/local/musl/ && export X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_STATIC=1
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Cache dependencies
@@ -113,7 +115,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SQLX_VERSION: 0.5.5
+      SQLX_VERSION: 0.5.7
       SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
@@ -175,7 +177,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SQLX_VERSION: 0.5.5
+      SQLX_VERSION: 0.5.7
       SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
