@@ -1,5 +1,6 @@
 use crate::configuration::{get_configuration, DatabaseSettings};
 use crate::model::account::Account;
+use crate::model::email::Email;
 
 use anyhow::Result;
 use sqlx::{Error, PgPool};
@@ -30,9 +31,13 @@ impl StorageManager {
     pub async fn get_all_accounts(&self) -> Result<Vec<Account>> {
         let connection = self.connection().await?;
 
-        let saved = sqlx::query_as!(Account, "SELECT * FROM accounts")
-            .fetch_all(&connection)
-            .await?;
+        let saved = sqlx::query_as!(
+            Account,
+            r#"
+            SELECT id, username, email as "email: Email", password  FROM accounts"#
+        )
+        .fetch_all(&connection)
+        .await?;
 
         // TODO: Replace with tracing logs
         for (index, account) in saved.iter().enumerate() {
@@ -45,7 +50,7 @@ impl StorageManager {
         let connection = self.connection().await?;
         let saved = sqlx::query_as!(
             Account,
-            "SELECT * FROM accounts WHERE username = $1",
+            r#"SELECT id, username, email as "email: Email", password FROM accounts WHERE username = $1"#,
             username
         )
         .fetch_one(&connection) // -> Vec<{ country: String, count: i64 }>
@@ -63,8 +68,8 @@ impl StorageManager {
             "INSERT INTO accounts (id, username, email, password) VALUES ($1, $2, $3, $4)",
             id,
             account.username,
-            account.email,
-            account.password
+            account.email.email_address.clone(),
+            account.password,
         )
         .execute(&connection)
         .await?;
@@ -91,7 +96,7 @@ impl StorageManager {
             "UPDATE accounts SET id=$1, username=$2, email=$3, password=$4",
             old_account.id,
             new_account.username,
-            new_account.email,
+            new_account.email.email_address.clone(),
             new_account.password
         )
         .execute(&connection)
