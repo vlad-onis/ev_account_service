@@ -1,21 +1,23 @@
 use std::fmt::{Debug, Display};
 
-use anyhow::Result;
 use thiserror::Error;
 use uuid::Uuid;
 
-use super::email::Email;
+use super::email::{Email, EmailValidationError};
 
 const USERNAME_MIN_LEN: usize = 4;
 const USERNAME_MAX_LEN: usize = 20;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum AccountValidationError {
     #[error("Username length should be between 4 and 20 characters")]
     InvalidUsernameLength,
+
+    #[error("Failed validating the email because: {0}")]
+    InvalidEmail(#[from] EmailValidationError),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Account {
     pub id: Uuid,
     pub username: String,
@@ -24,7 +26,11 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(username: String, email: String, password: String) -> Result<Account> {
+    pub fn new(
+        username: String,
+        email: String,
+        password: String,
+    ) -> Result<Account, AccountValidationError> {
         Account::is_valid(&username)?;
         let email = Email::new(email)?;
         let account = Account {
@@ -60,4 +66,66 @@ impl Display for Account {
     }
 }
 
-// TODO: Add unit tests.
+#[cfg(test)]
+pub mod tests {
+
+    use crate::model::email::EmailValidationError;
+
+    use super::{Account, AccountValidationError};
+
+    #[test]
+    fn valid_account() {
+        let acc = Account::new(
+            String::from("test_name"),
+            String::from("test_mail@gmail.com"),
+            String::from("justatest1234"),
+        );
+
+        assert!(acc.is_ok())
+    }
+
+    #[test]
+    fn invalid_account_short_username() {
+        let acc_username_too_short = Account::new(
+            String::from("tes"),
+            String::from("test_mail@gmail.com"),
+            String::from("justatest1234"),
+        );
+
+        assert!(acc_username_too_short.is_err());
+        let err = acc_username_too_short.unwrap_err();
+        assert_eq!(err, AccountValidationError::InvalidUsernameLength);
+    }
+
+    #[test]
+    fn invalid_account_empty_email() {
+        let acc_username_too_short = Account::new(
+            String::from("test"),
+            String::from(""),
+            String::from("justatest1234"),
+        );
+
+        assert!(acc_username_too_short.is_err());
+        let err = acc_username_too_short.unwrap_err();
+        assert_eq!(
+            err,
+            AccountValidationError::InvalidEmail(EmailValidationError::EmptyEmail)
+        );
+    }
+
+    #[test]
+    fn invalid_account_invalid_email() {
+        let acc_username_too_short = Account::new(
+            String::from("test"),
+            String::from("test_at_gmail.com"),
+            String::from("justatest1234"),
+        );
+
+        assert!(acc_username_too_short.is_err());
+        let err = acc_username_too_short.unwrap_err();
+        assert_eq!(
+            err,
+            AccountValidationError::InvalidEmail(EmailValidationError::InvalidEmail)
+        );
+    }
+}

@@ -1,22 +1,21 @@
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use std::fmt::{Debug, Display};
 
-#[derive(Error, Debug, Serialize, Deserialize)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum EmailValidationError {
     #[error("Could not construct regex for email validation")]
     InvalidRegexConstruct,
 
-    #[error("Could not validate the provided email address")]
+    #[error("Email address format is invalid")]
     InvalidEmail,
 
     #[error("Email cannot be empty")]
     EmptyEmail,
 }
 
-#[derive(Debug, Clone, sqlx::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, sqlx::Type)]
 pub struct Email {
     pub email_address: String,
 }
