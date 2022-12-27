@@ -21,6 +21,7 @@ chrono = { version = "0.4.15", default-features = false }
 anyhow = "1.0.66"
 thiserror = "1.0.37"
 regex = "1.7"
+tracing = "0.1.37"
 
 # Using table-like toml syntax to avoid a super-long line!
 [dependencies.sqlx]
