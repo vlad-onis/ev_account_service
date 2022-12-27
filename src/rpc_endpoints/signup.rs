@@ -18,7 +18,7 @@ pub mod account_service {
 ///     * password: String - mandatory
 ///     * email: String - mandatory
 // TODO: This should not be public.
-pub async fn sign_up(
+pub async fn sign_up_handler(
     request: Request<SignUpRequest>,
     storage_manager: &StorageManager,
 ) -> Result<Response<SignUpResponse>> {

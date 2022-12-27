@@ -5,7 +5,7 @@ use tonic::transport::server::Router;
 use tonic::transport::Server;
 
 /// Returns the Router that will start the AccountServiceServer.
-pub fn run() -> Router {
+pub fn build_service_router() -> Router {
     let accounts_endpoint_server = AccountsEndpointServer::new();
 
     Server::builder().add_service(AccountServiceServer::new(accounts_endpoint_server))

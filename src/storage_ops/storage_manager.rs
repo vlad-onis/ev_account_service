@@ -13,16 +13,15 @@ pub struct StorageManager {
 }
 
 impl StorageManager {
-    /// Creates a connection pool and uses it to construct the StorageManager
-    /// Panics if it could not connect to the db.
-
-    // TODO: Error handling instead of panic.
+    /// Initiates the StorageManager object with the db config from the provided config file
     pub fn new() -> StorageManager {
+        // TODO: Error handling instead of panic.
         let db_settings = get_configuration().expect("Could not load config").database;
 
         StorageManager { db_settings }
     }
 
+    /// returns a connection pool
     pub async fn connection(&self) -> Result<PgPool, Error> {
         PgPool::connect(&self.db_settings.connection_string()).await
     }

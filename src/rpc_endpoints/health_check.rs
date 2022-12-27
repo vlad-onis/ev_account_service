@@ -10,7 +10,7 @@ pub mod account_service {
 /// Grpc request will return the health check response
 
 // TODO: This should not be public.
-pub async fn health_check(
+pub async fn health_check_handler(
     _request: Request<EmptyRequest>,
 ) -> Result<Response<GrpcResponse>, Status> {
     let response = GrpcResponse {
