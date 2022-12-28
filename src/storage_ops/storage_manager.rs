@@ -4,6 +4,7 @@ use crate::model::email::Email;
 
 use anyhow::Result;
 use sqlx::{Error, PgPool};
+use tracing;
 use uuid::Uuid;
 
 /// Handles db operations on accounts
@@ -17,6 +18,8 @@ impl StorageManager {
     pub fn new() -> StorageManager {
         // TODO: Error handling instead of panic.
         let db_settings = get_configuration().expect("Could not load config").database;
+
+        tracing::info!("Storage manage created");
 
         StorageManager { db_settings }
     }
@@ -38,6 +41,8 @@ impl StorageManager {
         .fetch_all(&connection)
         .await?;
 
+        tracing::info!("Retrieved all accounts from the database");
+
         // TODO: Replace with tracing logs
         for (index, account) in saved.iter().enumerate() {
             println!("Account {index}:\n    {account}");
@@ -55,8 +60,7 @@ impl StorageManager {
         .fetch_one(&connection) // -> Vec<{ country: String, count: i64 }>
         .await?;
 
-        // TODO: Replace with tracing/logging
-        println!("Account:\n    {saved}");
+        tracing::info!("Retrieved account: {} from the database", saved);
         Ok(saved)
     }
 
@@ -73,6 +77,8 @@ impl StorageManager {
         .execute(&connection)
         .await?;
 
+        tracing::info!("Inserted account: {} into the database", account);
+
         Ok(account)
     }
 
@@ -81,6 +87,8 @@ impl StorageManager {
         let _ = sqlx::query!("DELETE FROM accounts WHERE username=$1", account.username,)
             .execute(&connection)
             .await?;
+
+        tracing::info!("Deleted account: {} from the database", account);
 
         Ok(account)
     }
@@ -100,6 +108,8 @@ impl StorageManager {
         )
         .execute(&connection)
         .await?;
+
+        tracing::info!("Updated account: {} from the database", old_account);
 
         Ok(new_account)
     }

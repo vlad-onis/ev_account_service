@@ -34,9 +34,12 @@ pub async fn sign_up_handler(
         Ok(account) => SignUpResponse {
             signup_response: format!("User: {} signed up successfully!", account.username),
         },
-        Err(er) => SignUpResponse {
-            signup_response: format!("Failed to sign up user: {} ", er),
-        },
+        Err(er) => {
+            tracing::error!("Signup error: {}", er);
+            SignUpResponse {
+                signup_response: format!("Failed to sign up user: {} ", er),
+            }
+        }
     };
 
     Ok(Response::new(response))

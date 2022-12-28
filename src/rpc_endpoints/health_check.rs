@@ -16,5 +16,8 @@ pub async fn health_check_handler(
     let response = GrpcResponse {
         response_text: "Health check status: healthy".to_string(),
     };
+
+    // TODO: Add request id here
+    tracing::info!("Health check emitted");
     Ok(Response::new(response))
 }
