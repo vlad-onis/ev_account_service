@@ -38,6 +38,7 @@ impl DatabaseSettings {
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
 
+    // TODO: Use parametrized config file not hardcoded
     settings.merge(config::File::with_name("configuration"))?;
 
     settings.try_into()

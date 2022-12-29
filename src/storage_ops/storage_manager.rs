@@ -4,6 +4,7 @@ use crate::model::email::Email;
 
 use anyhow::Result;
 use sqlx::{Error, PgPool};
+use tracing;
 use uuid::Uuid;
 
 /// Handles db operations on accounts
@@ -13,16 +14,17 @@ pub struct StorageManager {
 }
 
 impl StorageManager {
-    /// Creates a connection pool and uses it to construct the StorageManager
-    /// Panics if it could not connect to the db.
-
-    // TODO: Error handling instead of panic.
+    /// Initiates the StorageManager object with the db config from the provided config file
     pub fn new() -> StorageManager {
+        // TODO: Error handling instead of panic.
         let db_settings = get_configuration().expect("Could not load config").database;
+
+        tracing::info!("Storage manage created");
 
         StorageManager { db_settings }
     }
 
+    /// returns a connection pool
     pub async fn connection(&self) -> Result<PgPool, Error> {
         PgPool::connect(&self.db_settings.connection_string()).await
     }
@@ -38,6 +40,8 @@ impl StorageManager {
         )
         .fetch_all(&connection)
         .await?;
+
+        tracing::info!("Retrieved all accounts from the database");
 
         // TODO: Replace with tracing logs
         for (index, account) in saved.iter().enumerate() {
@@ -56,8 +60,7 @@ impl StorageManager {
         .fetch_one(&connection) // -> Vec<{ country: String, count: i64 }>
         .await?;
 
-        // TODO: Replace with tracing/logging
-        println!("Account:\n    {saved}");
+        tracing::info!("Retrieved account: {} from the database", saved);
         Ok(saved)
     }
 
@@ -74,6 +77,8 @@ impl StorageManager {
         .execute(&connection)
         .await?;
 
+        tracing::info!("Inserted account: {} into the database", account);
+
         Ok(account)
     }
 
@@ -82,6 +87,8 @@ impl StorageManager {
         let _ = sqlx::query!("DELETE FROM accounts WHERE username=$1", account.username,)
             .execute(&connection)
             .await?;
+
+        tracing::info!("Deleted account: {} from the database", account);
 
         Ok(account)
     }
@@ -101,6 +108,8 @@ impl StorageManager {
         )
         .execute(&connection)
         .await?;
+
+        tracing::info!("Updated account: {} from the database", old_account);
 
         Ok(new_account)
     }
