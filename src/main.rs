@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let router = startup::build_service_router();
 
     // TODO: Make this a config instead of a hardcoded local run
-    let addr = format!("127.0.0.1:{}", configuration.application_port);
+    let addr = format!("0.0.0.0:{}", configuration.application_port);
     let addr: SocketAddr = addr.parse()?;
 
     router.serve(addr).await?;
