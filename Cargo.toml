@@ -39,3 +39,5 @@ features = [
 
 [build-dependencies]
 tonic-build = "0.8.2"
+serde_yaml = "0.9.16"
+serde = "1.0.152"
