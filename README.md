@@ -2,13 +2,14 @@
 
 EV Account service is a microservice meant to handle all the account operations such as: login, signup, account updates and more. It is build on top of the Grpc communication protocol and uses protobuf to define messages.
 
+## Compile and run
+
 ```bash
 # Script that initialises and runs the db container
 # Without a running db, account service will fail to compile
 ./scripts/dev_db_init.sh
 ```
 
-## Compile and run
 ```bash
 # This command build the image and generates some config files along the way
 docker build --build-arg db_host=<IP_OF_DB_HOST> -f docker/Dockerfile .
