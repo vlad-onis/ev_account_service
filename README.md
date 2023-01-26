@@ -10,7 +10,6 @@ EV Account service is a microservice meant to handle all the account operations 
 ./scripts/dev_db_init.sh
 ```
 
-
 ```bash
 # This command build the image and generates some config files along the way
 docker build --build-arg db_host=<IP_OF_DB_HOST> -f docker/Dockerfile .
